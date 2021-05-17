@@ -1,0 +1,6 @@
+SampleBot vs SampleBot2 : 1 - 0 (Time taken: 2.264)
+
+-------------------------------------------
+
+Class earned: 1
+Class earned: 0

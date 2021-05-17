@@ -1,0 +1,10 @@
+*/.idea
+.idea
+log.txt
+src/snakes/out
+*/log.txt
+out
+results.txt
+production/
+*.iws
+logs
