@@ -47,7 +47,27 @@ public class SampleBot2 implements Bot {
         Direction[] notLosing = Arrays.stream(validMoves)
                 .filter(d -> head.moveTo(d).inBounds(mazeSize))             // Don't leave maze
                 .filter(d -> !opponent.elements.contains(head.moveTo(d)))   // Don't collide with opponent...
-                .filter(d -> !snake.elements.contains(head.moveTo(d)))      // and yourself
+                .filter(d -> !snake.elements.contains(head.moveTo(d)))      // and yourself   
+                
+                // Rechts nach Links
+                .filter(d -> (head.moveTo(d).getapple(apple))  || (head.moveTo1(d).getapple2(apple) )) 
+                .filter(d -> (head.moveTo2(d).getapple1(apple)) || (head.moveTo2(d).getapple3(apple) ))
+                
+                // Oben nach Unten
+                .filter(d -> (head.moveTo(d).getapple(apple))  || (head.moveTo1(d).getapple2(apple) )) 
+                .filter(d -> (head.moveTo3(d).getapple1(apple))  || (head.moveTo1(d).getapple3(apple) ))
+                
+                // Links nach Rechts
+                .filter(d -> (head.moveTo2(d).getapple2(apple) || (head.moveTo2(d).getapple(apple)))) 
+                .filter(d -> (head.moveTo2(d).getapple1(apple))  || (head.moveTo2(d).getapple3(apple) ))
+                
+                // Unten nach Oben
+                .filter(d -> (head.moveTo1(d).getapple(apple))  || (head.moveTo1(d).getapple2(apple)  )) 
+                .filter(d -> (head.moveTo3(d).getapple1(apple)) || (head.moveTo3(d).getapple3(apple) ))
+                
+
+                
+               
                 .sorted()
                 .toArray(Direction[]::new);
 
