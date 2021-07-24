@@ -2,7 +2,6 @@ package snakes;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
 
 /**
  * This class is responsible for the game's GUI window
