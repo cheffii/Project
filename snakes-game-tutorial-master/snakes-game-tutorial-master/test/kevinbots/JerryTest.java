@@ -28,17 +28,17 @@ class JerryTest {
     @org.junit.jupiter.api.Test
     void generatePopulation() throws InterruptedException, FileNotFoundException {
 
-        Jerry[] bots = new Jerry[200];
+        Jerry_Kevin[] bots = new Jerry_Kevin[200];
         for (int i = 0; i < bots.length; i++) {
-            bots[i] = new Jerry();
+            bots[i] = new Jerry_Kevin();
         }
         int botId = 0;
 
         File directory = new File("models/generation0");
         for (int pair = 0; pair < bots.length; pair+=2) {
 
-            Jerry bot1 = bots[pair];
-            Jerry bot2 = bots[pair + 1];
+            Jerry_Kevin bot1 = bots[pair];
+            Jerry_Kevin bot2 = bots[pair + 1];
 
             SnakeGame game = new SnakeGame(
                     new Coordinate(20,20),// größe von spielfeld
@@ -59,7 +59,7 @@ class JerryTest {
             
             System.out.println("steps: " + stepcounter);
             String score = game.gameResult; // beispiel "1 - 0"
-            Jerry winner = (score.charAt(0) == '1') ? bot1 : bot2;
+            Jerry_Kevin winner = (score.charAt(0) == '1') ? bot1 : bot2;
             if (!directory.exists())
                 directory.mkdir();
             winner.save(new File("models/generation0/Jerry" + botId++));
@@ -94,25 +94,25 @@ class JerryTest {
     }
     
     void simulateSomeGenerations(int generationIndex) throws IOException,  InterruptedException {
-        Jerry[] parents = new Jerry[100];
+        Jerry_Kevin[] parents = new Jerry_Kevin[100];
 
         // lade population                      (im ordner sind 100 bots definiert)
         for (int i = 0; i < 100; i++) {
-            parents[i] = new Jerry(new File("models/generation"+ (generationIndex -1) + "/Jerry" + i));
+            parents[i] = new Jerry_Kevin(new File("models/generation"+ (generationIndex -1) + "/Jerry" + i));
         }
         
         // erstelle 200 Kinder aus den 100 bots
-        Jerry [] children = new Jerry[200];
+        Jerry_Kevin[] children = new Jerry_Kevin[200];
         for (int i = 0; i < 200; i++) {
-            children[i] = new Jerry(parents[i/2], 1);
+            children[i] = new Jerry_Kevin(parents[i/2], 1);
         }
 
         
-        List<Jerry> list = Arrays.asList(children);
+        List<Jerry_Kevin> list = Arrays.asList(children);
         Collections.shuffle(list);
 
-        Iterator<Jerry> it = list.iterator();
-        Jerry [] winners = new Jerry[100];
+        Iterator<Jerry_Kevin> it = list.iterator();
+        Jerry_Kevin[] winners = new Jerry_Kevin[100];
 
         int i = 0;
         while (it.hasNext()) {
@@ -122,7 +122,7 @@ class JerryTest {
         i = 0;
         File dir = new File("models/generation" + generationIndex);
         dir.mkdir();
-        for (Jerry winner : winners) {
+        for (Jerry_Kevin winner : winners) {
             winner.save(new File("models/generation"+ generationIndex + "/Jerry" + i++));
         }
     }
@@ -130,7 +130,7 @@ class JerryTest {
     int stepcounter = 0;
     int stepSum = 0;
     
-    Jerry contest(Jerry a, Jerry b) throws  InterruptedException{
+    Jerry_Kevin contest(Jerry_Kevin a, Jerry_Kevin b) throws  InterruptedException{
         SnakeGame game = new SnakeGame(
                 new Coordinate(20,20),// größe von spielfeld
                 new Coordinate(5,10), // schlange 1
@@ -151,7 +151,7 @@ class JerryTest {
 
         if (logStepsOfContest) System.out.println("steps: " + stepcounter);
         String score = game.gameResult; // beispiel "1 - 0"
-        Jerry winner = (score.charAt(0) == '1') ? a : b;
+        Jerry_Kevin winner = (score.charAt(0) == '1') ? a : b;
         return winner;
     }
 }

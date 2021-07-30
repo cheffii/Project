@@ -5,10 +5,10 @@ import java.io.FileNotFoundException;
 
 public class testeLadeUndSave {
     public static void main(String[] args) {
-        Jerry j = new Jerry();
+        Jerry_Kevin j = new Jerry_Kevin();
         try {
             j.save(new File("testJerry.txt"));
-            Jerry x = new Jerry(new File("testJerry.txt"));
+            Jerry_Kevin x = new Jerry_Kevin(new File("testJerry.txt"));
 
             if (x.equals(j))
                 System.out.println("all fine");

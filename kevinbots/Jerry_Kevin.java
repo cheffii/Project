@@ -5,17 +5,14 @@ import snakes.Coordinate;
 import snakes.Direction;
 import snakes.Snake;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.abs;
 
-public class Jerry implements Bot {
+public class Jerry_Kevin implements Bot {
     private static float[] model = new float[]{0.3f, 0.2f};
 
     public static final int seitenLänge; // links + rechts + mitte
@@ -54,7 +51,7 @@ public class Jerry implements Bot {
         writer.close();
     }
 
-    public Jerry(File paramFile) throws FileNotFoundException {
+    public Jerry_Kevin(File paramFile) throws FileNotFoundException {
         Scanner scanner = new Scanner(paramFile);
         params = new float[scanner.nextInt()][scanner.nextInt()];
         scanner.nextLine();
@@ -64,34 +61,46 @@ public class Jerry implements Bot {
                 param[i] = Float.parseFloat(values[i]);
             }
         }
-        inputs = new float[seitenLänge * seitenLänge + 8]; // +8 Wegen Gegnerkopf koordinaten, Apfel koordinate und Abstand zu den Wänden
     }
 
-    /**
-     * Generiere zufälligen Bot
-     */
-    Jerry() {
-        inputs = new float[seitenLänge * seitenLänge + 8]; // +4 wegen gegner und apfel
 
-        params = new float[4][inputs.length + 1];
 
-        for (float[] param : params) {
-            for (int i = 0; i < param.length; i++) {
-                param[i] = (float) ThreadLocalRandom.current().nextDouble(-1.0, 1.0);
+     public Jerry_Kevin(){
+        try{
+            Scanner scanner = new Scanner("jerry.txt");
+            params = new float[scanner.nextInt()][scanner.nextInt()];
+            scanner.nextLine();
+            for (float[] param : params) {
+                String[] values = scanner.nextLine().split(",");
+                for (int i = 0; i < param.length; i++) {
+                    param[i] = Float.parseFloat(values[i]);
+                }
+            }
+        }catch(Exception e) {
+            inputs = new float[seitenLänge * seitenLänge + 8]; // +4 wegen gegner und apfel
+
+            params = new float[4][inputs.length + 1];
+
+            for (float[] param : params) {
+                for (int i = 0; i < param.length; i++) {
+                    param[i] = (float) ThreadLocalRandom.current().nextDouble(-1.0, 1.0);
+                }
             }
         }
-    }
+     }
 
-    Jerry(Jerry_Kevin parent, float mutationsStärke) {
-        inputs = new float[parent.inputs.length];
-        params = new float[parent.params.length][parent.params[0].length];
 
-        for (int i = 0; i < params.length; i++) {
-            for (int k = 0; k < params[i].length; k++) {
-                params[i][k] = (float) (parent.params[i][k] + (mutationsStärke * ThreadLocalRandom.current().nextDouble(-.01, .01)));
-            }
-        }
-    }
+     public Jerry_Kevin(Jerry_Kevin parent, float mutationsStärke) {
+     inputs = new float[parent.inputs.length];
+     params = new float[parent.params.length][parent.params[0].length];
+
+     for (int i = 0; i < params.length; i++) {
+     for (int k = 0; k < params[i].length; k++) {
+     params[i][k] = (float) (parent.params[i][k] + (mutationsStärke * ThreadLocalRandom.current().nextDouble(-.01, .01)));
+     }
+     }
+     }
+
 
     /**
      * Transformiert die Koordinaten vom globalen Koordinatensystem in das vom "radar". Der Radar ist eine Art minimap für die schlange, damit sie die nähere Umgebung wahrnehmen kann.
@@ -149,10 +158,11 @@ public class Jerry implements Bot {
             return false;
         return true;
     }
-           
 
-    
-    @Override public Direction chooseDirection(Snake snake, Snake opponent, Coordinate mazeSize, Coordinate apple) {
+
+
+    @Override
+    public Direction chooseDirection(Snake snake, Snake opponent, Coordinate mazeSize, Coordinate apple) {
         // mach aus parametern input für NN
         Arrays.fill(inputs, 0);
         setElementOnRadar(inputs, snake, apple, apfel);
@@ -163,7 +173,7 @@ public class Jerry implements Bot {
 
         setElementOnRadar(inputs, snake, opponent.getHead(), blockiert);
         opponent.body.forEach(bodyElement -> setElementOnRadar(inputs, snake, bodyElement, blockiert));
-        
+
         // Fühler für wände
         inputs[inputs.length - 8] = ((snake.mazeSize.y - snake.getHead().y) == 0)? -1: 0;
         inputs[inputs.length - 7] = ((snake.mazeSize.x - snake.getHead().x) == 0)? -1: 0;
@@ -175,11 +185,35 @@ public class Jerry implements Bot {
         inputs[inputs.length - 3] = (apple.y - snake.getHead().y) / (float) snake.mazeSize.y;//y apfel
         inputs[inputs.length - 2] = (opponent.getHead().x - snake.getHead().x) / (float) snake.mazeSize.x; //x opponent
         inputs[inputs.length - 1] = (opponent.getHead().y - snake.getHead().y) / (float) snake.mazeSize.y;//y opponent
+        /**
+        //Erlaubte Moves
+        Coordinate afterHeadNotFinal = null;
+        if (snake.body.size() >= 2) {
+            Iterator<Coordinate> it = snake.body.iterator();
+            it.next();
+            afterHeadNotFinal = it.next();
+        }
 
-        // finde Wände
-        
-       
-        
+        Direction[] validMoves = Arrays.stream(DIRECTIONS)
+                .filter(d -> !snake.getHead().moveTo(d).equals(snake.body.)) // Filter out the backwards move
+                .sorted()
+                .toArray(Direction[]::new);
+
+        /* Just naïve greedy algorithm that tries not to die at each moment in time */
+        /**
+        Direction[] notLosing = Arrays.stream(validMoves)
+                .filter(d -> head.moveTo(d).inBounds(mazeSize))             // Don't leave maze
+                .filter(d -> !opponent.elements.contains(head.moveTo(d)))   // Don't collide with opponent...
+                .filter(d -> !snake.elements.contains(head.moveTo(d)))      // and yourself
+                .sorted()
+                .toArray(Direction[]::new);
+
+        if (notLosing.length > 0) return notLosing[0];
+        else return validMoves[0];
+        //Versuche nicht zu verlieren
+        */
+
+
         float[] decisions = evaluate(inputs);
 
 
@@ -189,6 +223,10 @@ public class Jerry implements Bot {
                 maxI = i;
             }
         }
+       try{
+           this.save(new File("jerry.txt"));
+       }
+       catch(FileNotFoundException e){}
 
         return DIRECTIONS[maxI];
     }
@@ -238,3 +276,5 @@ public class Jerry implements Bot {
 
     private static final Direction[] DIRECTIONS = new Direction[]{Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
 }
+
+
